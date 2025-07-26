@@ -24,8 +24,24 @@ class LLMClient:
                 'Content-Type': 'application/json',
                 'anthropic-version': '2023-06-01'
             })
+        elif self.provider == 'gemini':
+            self.session.headers.update({
+                'Content-Type': 'application/json'
+            })
+            # Gemini uses API key as query parameter
+            self.api_key_param = f'?key={api_key}'
+        elif self.provider == 'deepseek':
+            self.session.headers.update({
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json'
+            })
+        elif self.provider == 'grok':
+            self.session.headers.update({
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json'
+            })
         else:
-            # Generic setup for custom providers
+            # Generic setup
             self.session.headers.update({
                 'Authorization': f'Bearer {api_key}',
                 'Content-Type': 'application/json'
@@ -47,6 +63,12 @@ class LLMClient:
                 return self._send_openai_message(message, test_mode)
             elif self.provider == 'anthropic':
                 return self._send_anthropic_message(message, test_mode)
+            elif self.provider == 'gemini':
+                return self._send_gemini_message(message, test_mode)
+            elif self.provider == 'deepseek':
+                return self._send_deepseek_message(message, test_mode)
+            elif self.provider == 'grok':
+                return self._send_grok_message(message, test_mode)
             else:
                 return self._send_generic_message(message, test_mode)
         except Exception as e:
@@ -154,5 +176,103 @@ class LLMClient:
             logging.error(f"Unexpected API response format: {str(e)}")
         except json.JSONDecodeError as e:
             logging.error(f"Failed to parse API response: {str(e)}")
+        
+        return None
+    
+    def _send_gemini_message(self, message: str, test_mode: bool = False) -> Optional[str]:
+        """Send message to Gemini API"""
+        test_message = "Hi" if test_mode else message
+        
+        # Use generateContent endpoint for Gemini
+        endpoint = f"{self.endpoint}/gemini-1.5-flash:generateContent{getattr(self, 'api_key_param', '')}"
+        
+        payload = {
+            "contents": [{
+                "parts": [{
+                    "text": test_message
+                }]
+            }],
+            "generationConfig": {
+                "maxOutputTokens": 150 if test_mode else 1000,
+                "temperature": 0.7
+            }
+        }
+        
+        try:
+            response = self.session.post(endpoint, json=payload, timeout=30)
+            response.raise_for_status()
+            
+            data = response.json()
+            if 'candidates' in data and len(data['candidates']) > 0:
+                parts = data['candidates'][0].get('content', {}).get('parts', [])
+                if parts and 'text' in parts[0]:
+                    return parts[0]['text'].strip()
+            
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Gemini API request failed: {str(e)}")
+        except KeyError as e:
+            logging.error(f"Unexpected Gemini API response format: {str(e)}")
+        except json.JSONDecodeError as e:
+            logging.error(f"Failed to parse Gemini API response: {str(e)}")
+        
+        return None
+    
+    def _send_deepseek_message(self, message: str, test_mode: bool = False) -> Optional[str]:
+        """Send message to DeepSeek API"""
+        test_message = "Hi" if test_mode else message
+        
+        payload = {
+            "model": "deepseek-chat",
+            "messages": [
+                {"role": "user", "content": test_message}
+            ],
+            "max_tokens": 150 if test_mode else 1000,
+            "temperature": 0.7
+        }
+        
+        try:
+            response = self.session.post(self.endpoint, json=payload, timeout=30)
+            response.raise_for_status()
+            
+            data = response.json()
+            if 'choices' in data and len(data['choices']) > 0:
+                return data['choices'][0]['message']['content'].strip()
+            
+        except requests.exceptions.RequestException as e:
+            logging.error(f"DeepSeek API request failed: {str(e)}")
+        except KeyError as e:
+            logging.error(f"Unexpected DeepSeek API response format: {str(e)}")
+        except json.JSONDecodeError as e:
+            logging.error(f"Failed to parse DeepSeek API response: {str(e)}")
+        
+        return None
+    
+    def _send_grok_message(self, message: str, test_mode: bool = False) -> Optional[str]:
+        """Send message to Grok API"""
+        test_message = "Hi" if test_mode else message
+        
+        payload = {
+            "model": "grok-beta",
+            "messages": [
+                {"role": "user", "content": test_message}
+            ],
+            "max_tokens": 150 if test_mode else 1000,
+            "temperature": 0.7
+        }
+        
+        try:
+            response = self.session.post(self.endpoint, json=payload, timeout=30)
+            response.raise_for_status()
+            
+            data = response.json()
+            if 'choices' in data and len(data['choices']) > 0:
+                return data['choices'][0]['message']['content'].strip()
+            
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Grok API request failed: {str(e)}")
+        except KeyError as e:
+            logging.error(f"Unexpected Grok API response format: {str(e)}")
+        except json.JSONDecodeError as e:
+            logging.error(f"Failed to parse Grok API response: {str(e)}")
         
         return None

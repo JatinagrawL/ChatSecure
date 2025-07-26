@@ -64,9 +64,11 @@ The architecture prioritizes simplicity and security, with PII detection occurri
 ## External Dependencies
 
 ### Required APIs
-- **OpenAI API**: For GPT-3.5/GPT-4 models (default endpoint: https://api.openai.com/v1/chat/completions)
+- **OpenAI API**: For GPT-3.5/GPT-4 models (endpoint: https://api.openai.com/v1/chat/completions)
 - **Anthropic API**: For Claude models (endpoint: https://api.anthropic.com/v1/messages)
-- **Custom APIs**: Support for any OpenAI-compatible API endpoints
+- **Google Gemini API**: For Gemini models (endpoint: https://generativelanguage.googleapis.com/v1beta/models)
+- **DeepSeek API**: For DeepSeek models (endpoint: https://api.deepseek.com/v1/chat/completions)
+- **xAI Grok API**: For Grok models (endpoint: https://api.x.ai/v1/chat/completions)
 
 ### Python Dependencies
 - **Flask**: Web framework for application structure and routing

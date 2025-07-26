@@ -22,22 +22,25 @@ def index():
 def configure_api():
     """Configure LLM API settings"""
     api_key = request.form.get('api_key', '').strip()
-    api_endpoint = request.form.get('api_endpoint', '').strip()
     api_provider = request.form.get('api_provider', 'openai')
     
     if not api_key:
         flash('API key is required', 'error')
         return redirect(url_for('index'))
     
+    # Set default endpoints based on provider
+    endpoint_map = {
+        'openai': 'https://api.openai.com/v1/chat/completions',
+        'anthropic': 'https://api.anthropic.com/v1/messages',
+        'gemini': 'https://generativelanguage.googleapis.com/v1beta/models',
+        'deepseek': 'https://api.deepseek.com/v1/chat/completions',
+        'grok': 'https://api.x.ai/v1/chat/completions'
+    }
+    
+    api_endpoint = endpoint_map.get(api_provider)
     if not api_endpoint:
-        # Set default endpoints based on provider
-        if api_provider == 'openai':
-            api_endpoint = 'https://api.openai.com/v1/chat/completions'
-        elif api_provider == 'anthropic':
-            api_endpoint = 'https://api.anthropic.com/v1/messages'
-        else:
-            flash('API endpoint is required for custom providers', 'error')
-            return redirect(url_for('index'))
+        flash('Unsupported API provider', 'error')
+        return redirect(url_for('index'))
     
     # Store in session
     session['api_key'] = api_key
@@ -48,7 +51,7 @@ def configure_api():
     # Test API connection
     llm_client = LLMClient(api_key, api_endpoint, api_provider)
     if not llm_client.test_connection():
-        flash('Failed to connect to API. Please check your credentials and endpoint.', 'error')
+        flash('Failed to connect to API. Please check your credentials.', 'error')
         return redirect(url_for('index'))
     
     flash('API configured successfully!', 'success')
