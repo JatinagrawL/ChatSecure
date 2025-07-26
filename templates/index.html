@@ -6,6 +6,7 @@
     <title>#GPT - Secure LLM Wrapper</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
 <body class="bg-dark text-light">
@@ -15,11 +16,11 @@
                 <div class="card bg-dark border-secondary">
                     <div class="card-body p-5">
                         <!-- Header -->
-                        <div class="text-center mb-4">
-                            <h1 class="display-4 text-primary mb-3">
-                                <i class="fas fa-shield-alt"></i> #GPT
+                        <div class="text-center mb-5">
+                            <h1 class="display-4 mb-3" style="background: linear-gradient(135deg, #0084ff, #00a8ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">
+                                <i class="fas fa-shield-alt" style="color: #0084ff;"></i> #GPT
                             </h1>
-                            <p class="lead text-muted">Secure LLM wrapper with automatic PII redaction</p>
+                            <p class="lead" style="color: #d0d0d0; font-weight: 500;">Secure LLM wrapper with automatic PII redaction</p>
                         </div>
 
                         <!-- Flash Messages -->
@@ -38,10 +39,10 @@
                         <form method="POST" action="{{ url_for('configure_api') }}">
                             <!-- API Provider Selection -->
                             <div class="mb-4">
-                                <label for="api_provider" class="form-label">
-                                    <i class="fas fa-cogs"></i> API Provider
+                                <label for="api_provider" class="form-label" style="color: #e0e0e0; font-weight: 600;">
+                                    <i class="fas fa-cogs text-primary"></i> API Provider
                                 </label>
-                                <select class="form-select bg-dark text-light border-secondary" id="api_provider" name="api_provider" required>
+                                <select class="form-select" id="api_provider" name="api_provider" required>
                                     <option value="openai">OpenAI (GPT-3.5/GPT-4)</option>
                                     <option value="anthropic">Anthropic (Claude)</option>
                                     <option value="custom">Custom API</option>
@@ -50,50 +51,52 @@
 
                             <!-- API Key -->
                             <div class="mb-4">
-                                <label for="api_key" class="form-label">
-                                    <i class="fas fa-key"></i> API Key
+                                <label for="api_key" class="form-label" style="color: #e0e0e0; font-weight: 600;">
+                                    <i class="fas fa-key text-warning"></i> API Key
                                 </label>
-                                <input type="password" class="form-control bg-dark text-light border-secondary" id="api_key" name="api_key" placeholder="Enter your API key" required>
-                                <div class="form-text text-muted">Your API key is stored securely in session only</div>
+                                <input type="password" class="form-control" id="api_key" name="api_key" placeholder="Enter your API key" required>
+                                <div class="form-text" style="color: #b0b0b0;">Your API key is stored securely in session only</div>
                             </div>
 
                             <!-- API Endpoint -->
                             <div class="mb-4">
-                                <label for="api_endpoint" class="form-label">
-                                    <i class="fas fa-link"></i> API Endpoint
+                                <label for="api_endpoint" class="form-label" style="color: #e0e0e0; font-weight: 600;">
+                                    <i class="fas fa-link text-info"></i> API Endpoint
                                 </label>
-                                <input type="url" class="form-control bg-dark text-light border-secondary" id="api_endpoint" name="api_endpoint" placeholder="https://api.example.com/v1/chat">
-                                <div class="form-text text-muted">Leave empty to use default endpoints for OpenAI/Anthropic</div>
+                                <input type="url" class="form-control" id="api_endpoint" name="api_endpoint" placeholder="https://api.example.com/v1/chat">
+                                <div class="form-text" style="color: #b0b0b0;">Leave empty to use default endpoints for OpenAI/Anthropic</div>
                             </div>
 
                             <!-- Connect Button -->
                             <div class="d-grid mb-4">
-                                <button type="submit" class="btn btn-primary btn-lg">
+                                <button type="submit" class="btn btn-lg" style="background: linear-gradient(135deg, #0084ff, #00a8ff); border: none; font-weight: 600; padding: 14px; border-radius: 12px; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0, 132, 255, 0.3);" 
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 132, 255, 0.4)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(0, 132, 255, 0.3)'">
                                     <i class="fas fa-plug"></i> Connect & Test API
                                 </button>
                             </div>
                         </form>
 
                         <!-- Security Features -->
-                        <div class="card bg-secondary bg-opacity-25 border-0">
+                        <div class="card border-0" style="background: rgba(45, 45, 45, 0.6); backdrop-filter: blur(10px);">
                             <div class="card-body">
-                                <h5 class="card-title text-warning">
+                                <h5 class="card-title" style="color: #ffc107; font-weight: 600;">
                                     <i class="fas fa-shield-alt"></i> Security Features
                                 </h5>
-                                <p class="card-text small">This application automatically detects and redacts:</p>
+                                <p class="card-text" style="color: #d0d0d0; font-size: 0.95rem;">This application automatically detects and redacts:</p>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <ul class="list-unstyled small">
-                                            <li><i class="fas fa-check text-success"></i> Email addresses</li>
-                                            <li><i class="fas fa-check text-success"></i> Phone numbers</li>
-                                            <li><i class="fas fa-check text-success"></i> Social Security Numbers</li>
+                                        <ul class="list-unstyled" style="font-size: 0.9rem;">
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Email addresses</li>
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Phone numbers</li>
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Social Security Numbers</li>
                                         </ul>
                                     </div>
                                     <div class="col-md-6">
-                                        <ul class="list-unstyled small">
-                                            <li><i class="fas fa-check text-success"></i> Names (common)</li>
-                                            <li><i class="fas fa-check text-success"></i> Dates of birth</li>
-                                            <li><i class="fas fa-check text-success"></i> Physical addresses</li>
+                                        <ul class="list-unstyled" style="font-size: 0.9rem;">
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Names (common)</li>
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Dates of birth</li>
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Physical addresses</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -102,8 +105,8 @@
 
                         <!-- Instructions -->
                         <div class="mt-4 text-center">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle"></i> 
+                            <small style="color: #b0b0b0; font-size: 0.9rem;">
+                                <i class="fas fa-info-circle text-info"></i> 
                                 Configure your LLM API above to start chatting securely
                             </small>
                         </div>

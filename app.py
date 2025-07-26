@@ -71,7 +71,8 @@ def send_message():
     if 'api_key' not in session:
         return jsonify({'error': 'API not configured'}), 400
     
-    user_message = request.json.get('message', '').strip()
+    data = request.get_json()
+    user_message = data.get('message', '').strip() if data else ''
     if not user_message:
         return jsonify({'error': 'Message cannot be empty'}), 400
     
