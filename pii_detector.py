@@ -1,4 +1,5 @@
 import re
+import random
 from typing import List, Tuple, Dict
 
 class PIIDetector:
@@ -60,6 +61,126 @@ class PIIDetector:
         
         return names
     
+    def _generate_fake_email(self, original: str) -> str:
+        """Generate a realistic fake email that maintains domain context"""
+        fake_names = ['john.doe', 'jane.smith', 'alex.johnson', 'sarah.wilson', 'mike.brown']
+        domains = ['example.com', 'sample.org', 'demo.net', 'test.com']
+        
+        # Try to preserve domain if it looks like a company domain
+        original_parts = original.split('@')
+        if len(original_parts) == 2:
+            domain = original_parts[1].lower()
+            if any(corp in domain for corp in ['gmail', 'yahoo', 'hotmail', 'outlook']):
+                # Use generic domain for personal emails
+                return f"{random.choice(fake_names)}@{random.choice(domains)}"
+            else:
+                # Keep similar structure for business emails
+                return f"{random.choice(fake_names)}@example-company.com"
+        
+        return f"{random.choice(fake_names)}@{random.choice(domains)}"
+    
+    def _generate_fake_phone(self, original: str) -> str:
+        """Generate a fake phone number maintaining format"""
+        # Generate fake numbers in 555 range (reserved for fiction)
+        area_code = random.choice(['555', '123', '456'])
+        exchange = random.randint(100, 999)
+        number = random.randint(1000, 9999)
+        
+        # Maintain original formatting
+        if '(' in original and ')' in original:
+            return f"({area_code}) {exchange}-{number}"
+        elif '-' in original:
+            return f"{area_code}-{exchange}-{number}"
+        elif '.' in original:
+            return f"{area_code}.{exchange}.{number}"
+        else:
+            return f"{area_code}{exchange}{number}"
+    
+    def _generate_fake_ssn(self, original: str) -> str:
+        """Generate a fake SSN maintaining format"""
+        # Use 999 prefix which is not issued
+        fake_ssn = f"999{random.randint(10, 99)}{random.randint(1000, 9999)}"
+        
+        # Maintain original formatting
+        if '-' in original:
+            return f"{fake_ssn[:3]}-{fake_ssn[3:5]}-{fake_ssn[5:]}"
+        else:
+            return fake_ssn
+    
+    def _generate_fake_date(self, original: str) -> str:
+        """Generate a fake date maintaining format"""
+        fake_month = random.randint(1, 12)
+        fake_day = random.randint(1, 28)  # Safe day for all months
+        fake_year = random.randint(1960, 2000)
+        
+        # Maintain original format
+        if '/' in original:
+            if original.index('/') < 3:  # MM/DD/YYYY format
+                return f"{fake_month:02d}/{fake_day:02d}/{fake_year}"
+            else:  # YYYY/MM/DD format
+                return f"{fake_year}/{fake_month:02d}/{fake_day:02d}"
+        elif '-' in original:
+            if original.index('-') < 3:  # MM-DD-YYYY format
+                return f"{fake_month:02d}-{fake_day:02d}-{fake_year}"
+            else:  # YYYY-MM-DD format
+                return f"{fake_year}-{fake_month:02d}-{fake_day:02d}"
+        
+        return f"{fake_month}/{fake_day}/{fake_year}"
+    
+    def _generate_fake_address(self, original: str) -> str:
+        """Generate a fake address maintaining street type"""
+        fake_numbers = [123, 456, 789, 321, 654]
+        fake_streets = ['Oak', 'Pine', 'Maple', 'Cedar', 'Elm', 'Main', 'First', 'Second']
+        
+        # Extract street type from original
+        street_types = ['Street', 'St', 'Avenue', 'Ave', 'Road', 'Rd', 'Boulevard', 'Blvd', 
+                       'Lane', 'Ln', 'Drive', 'Dr', 'Court', 'Ct', 'Place', 'Pl']
+        
+        street_type = 'Street'  # default
+        for st_type in street_types:
+            if st_type.lower() in original.lower():
+                street_type = st_type
+                break
+        
+        return f"{random.choice(fake_numbers)} {random.choice(fake_streets)} {street_type}"
+    
+    def _generate_fake_zip(self, original: str) -> str:
+        """Generate a fake ZIP code maintaining format"""
+        fake_zip = random.randint(10000, 99999)
+        
+        # Maintain format with +4 if present
+        if '-' in original:
+            fake_plus4 = random.randint(1000, 9999)
+            return f"{fake_zip}-{fake_plus4}"
+        else:
+            return str(fake_zip)
+    
+    def _generate_fake_name(self, original: str) -> str:
+        """Generate a fake name maintaining capitalization"""
+        fake_first_names = ['John', 'Jane', 'Alex', 'Sarah', 'Mike', 'Lisa', 'David', 'Emma']
+        fake_last_names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis']
+        
+        # Check if it's likely a first name or last name based on common patterns
+        if original.lower() in self.common_first_names:
+            return random.choice(fake_first_names)
+        elif original.lower() in self.common_last_names:
+            return random.choice(fake_last_names)
+        else:
+            # Default to first name
+            return random.choice(fake_first_names)
+    
+    def _get_replacement_generators(self):
+        """Get replacement generators dictionary"""
+        return {
+            'email': self._generate_fake_email,
+            'phone': self._generate_fake_phone,
+            'ssn': self._generate_fake_ssn,
+            'date_of_birth': self._generate_fake_date,
+            'address': self._generate_fake_address,
+            'zip_code': self._generate_fake_zip,
+            'name': self._generate_fake_name
+        }
+    
     def redact_pii(self, text: str) -> Tuple[str, List[Dict]]:
         """
         Redact PII from text and return both redacted text and list of redactions
@@ -120,9 +241,15 @@ class PIIDetector:
             if not overlaps:
                 filtered_matches.append(match)
         
-        # Apply redactions
+        # Apply realistic replacements
+        replacement_generators = self._get_replacement_generators()
         for pii_type, value, start, end in filtered_matches:
-            replacement = f"[REDACTED {pii_type}]"
+            # Generate appropriate replacement based on PII type
+            if pii_type.lower() in replacement_generators:
+                replacement = replacement_generators[pii_type.lower()](value)
+            else:
+                replacement = f"[SYNTHETIC_{pii_type}]"
+            
             redacted_text = redacted_text[:start] + replacement + redacted_text[end:]
             
             redactions.append({

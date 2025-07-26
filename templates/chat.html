@@ -47,7 +47,7 @@
                                         {% if message.redactions %}
                                             <div class="redaction-info">
                                                 <i class="fas fa-shield-alt text-warning"></i>
-                                                <small>PII detected and redacted: 
+                                                <small>PII detected and replaced with synthetic values: 
                                                     {% for redaction in message.redactions %}
                                                         <span class="badge bg-warning text-dark">{{ redaction.type }}</span>
                                                     {% endfor %}
@@ -105,7 +105,7 @@
                     <div class="input-help">
                         <small class="text-muted">
                             <i class="fas fa-shield-alt text-warning"></i>
-                            PII is automatically detected and redacted before sending
+                            PII is automatically detected and replaced with synthetic values before sending
                         </small>
                     </div>
                 </div>

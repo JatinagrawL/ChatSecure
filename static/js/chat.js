@@ -166,7 +166,7 @@ function updateUserMessageWithRedactions(redactions) {
             placeholder.innerHTML = `
                 <div class="redaction-info">
                     <i class="fas fa-shield-alt text-warning"></i>
-                    <small>PII detected and redacted: ${badgesHtml}</small>
+                    <small>PII detected and replaced with synthetic values: ${badgesHtml}</small>
                 </div>
             `;
         }
